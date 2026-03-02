@@ -218,3 +218,5 @@ void printPerson(const Person &p) {
 - struct 支持成员函数、构造函数、继承等，功能与 class 基本一致。
 
 ---
+
+C++内存分区模型

@@ -40,3 +40,6 @@ target_include_directories(modern_cpp PRIVATE ${SRC_DIR})
 
 ---
 建议所有编译、测试操作都在build目录下进行，保持源码目录干净。
+
+system("pause"); // Windows系统下暂停程序，等待用户输入后继续
+system("cls")

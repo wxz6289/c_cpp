@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
 
 struct Contact {
     std::string name;
@@ -46,6 +49,70 @@ public:
         contacts.clear();
         std::cout << "已清空通讯录。" << std::endl;
     }
+
+    bool saveToCSV(const std::string &path) const {
+        std::ofstream ofs(path);
+        if (!ofs) return false;
+        for (const auto &c : contacts) {
+            // 简单 CSV：用双引号包裹并转义内部双引号
+            std::string name = c.name;
+            std::string phone = c.phone;
+            auto escape = [](const std::string &s){
+                std::string out;
+                for (char ch : s) {
+                    if (ch == '"') out += '"', out += '"';
+                    else out += ch;
+                }
+                return out;
+            };
+            ofs << '"' << escape(name) << "\",\"" << escape(phone) << '"' << "\n";
+        }
+        return true;
+    }
+
+    bool loadFromCSV(const std::string &path) {
+        std::ifstream ifs(path);
+        if (!ifs) return false;
+        contacts.clear();
+        std::string line;
+        while (std::getline(ifs, line)) {
+            std::string name, phone;
+            // 解析简单的双引号包裹 CSV（假设每行两个字段）
+            if (!line.empty() && line.front() == '"') {
+                size_t pos = 1;
+                // 读取 name
+                while (pos < line.size()) {
+                    if (line[pos] == '"') {
+                        if (pos + 1 < line.size() && line[pos+1] == '"') { name += '"'; pos += 2; continue; }
+                        ++pos; break;
+                    }
+                    name += line[pos++];
+                }
+                // 跳过逗号和可能的引号
+                while (pos < line.size() && (line[pos] == ',' || line[pos] == '"')) ++pos;
+                // 读取 phone
+                while (pos < line.size()) {
+                    if (line[pos] == '"') {
+                        if (pos + 1 < line.size() && line[pos+1] == '"') { phone += '"'; pos += 2; continue; }
+                        ++pos; break;
+                    }
+                    phone += line[pos++];
+                }
+            } else {
+                // 退化情况：按逗号分割
+                std::istringstream ss(line);
+                std::getline(ss, name, ',');
+                std::getline(ss, phone);
+            }
+            // trim
+            auto trim = [](std::string &s){
+                while (!s.empty() && (s.back()=='\r' || s.back()=='\n')) s.pop_back();
+            };
+            trim(name); trim(phone);
+            contacts.push_back({name, phone});
+        }
+        return true;
+    }
 private:
     std::vector<Contact> contacts;
 };
@@ -54,7 +121,7 @@ int main() {
     PhoneBook pb;
     std::string line;
     while (true) {
-        std::cout << "\n1. 添加联系人\n2. 列出所有联系人\n3. 搜索联系人\n4. 删除联系人\n5. 修改联系人\n6. 清空通讯录\n0. 退出\n请选择：";
+        std::cout << "\n1. 添加联系人\n2. 列出所有联系人\n3. 搜索联系人\n4. 删除联系人\n5. 修改联系人\n6. 清空通讯录\n7. 保存到文件\n8. 从文件加载\n0. 退出\n请选择：";
         if (!std::getline(std::cin, line)) break;
         if (line.empty()) continue;
         int choice = 0;
@@ -104,6 +171,20 @@ int main() {
             std::getline(std::cin, confirm);
             if (!confirm.empty() && (confirm[0]=='y' || confirm[0]=='Y')) pb.clearContacts();
             else std::cout << "已取消。" << std::endl;
+        } else if (choice == 7) {
+            std::string path;
+            std::cout << "保存到文件（默认 contacts.csv）：";
+            std::getline(std::cin, path);
+            if (path.empty()) path = "contacts.csv";
+            if (pb.saveToCSV(path)) std::cout << "已保存到 " << path << std::endl;
+            else std::cout << "保存失败。" << std::endl;
+        } else if (choice == 8) {
+            std::string path;
+            std::cout << "从文件加载（默认 contacts.csv）：";
+            std::getline(std::cin, path);
+            if (path.empty()) path = "contacts.csv";
+            if (pb.loadFromCSV(path)) std::cout << "已从 " << path << " 加载。" << std::endl;
+            else std::cout << "加载失败。" << std::endl;
         } else {
             std::cout << "无效选择。" << std::endl;
         }
