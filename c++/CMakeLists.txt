@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(modern-cpp)
+project(c++)
 
 # 设置C++标准
 set(CMAKE_CXX_STANDARD 20)
@@ -27,7 +27,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # add_executable(struct_array ${SRC_DIR}/struct-array.cpp)
 # add_executable(struct_pointer ${SRC_DIR}/struct-pointer.cpp)
 # add_executable(struct_in_struct ${SRC_DIR}/struct-in-struct.cpp)
-add_executable(const_struct ${SRC_DIR}/const-struct.cpp)
+add_executable(phone_book ${SRC_DIR}/phone-book.cpp)
 
 # 包含头文件目录
 # target_include_directories(function PRIVATE ${SRC_DIR})
@@ -39,5 +39,5 @@ add_executable(const_struct ${SRC_DIR}/const-struct.cpp)
 # target_include_directories(struct PRIVATE ${SRC_DIR})
 # target_include_directories(struct_array PRIVATE ${SRC_DIR})
 # target_include_directories(struct_pointer PRIVATE ${SRC_DIR})
-target_include_directories(const_struct PRIVATE ${SRC_DIR})
+target_include_directories(phone_book PRIVATE ${SRC_DIR})
 # target_include_directories(test_runner PRIVATE ${SRC_DIR} ${TEST_DIR})
