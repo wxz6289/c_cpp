@@ -622,3 +622,238 @@ process(10); // 调用 process(const int &x)
 
 **小结**：函数重载让代码更灵活、易用，是 C++ 面向对象和泛型编程的重要基础。
 
+---
+
+## 类与对象
+
+C++ 是面向对象编程语言，类（class）是用户自定义的数据类型，对象是类的实例。类封装了数据成员（属性）和成员函数（方法），实现数据和操作的统一。
+
+### 1. 类的定义与对象的创建
+
+```cpp
+class Person {
+public:
+    std::string name;
+    int age;
+
+    void sayHello() {
+        std::cout << "Hello, my name is " << name << std::endl;
+    }
+};
+
+Person p1; // 创建对象
+p1.name = "Alice";
+p1.age = 20;
+p1.sayHello();
+```
+
+- `public`：公有成员，外部可访问。
+- `private`：私有成员，仅类内部可访问（默认）。
+- `protected`：受保护成员，派生类可访问。
+
+### 2. 构造函数与析构函数
+
+- **构造函数**：与类同名，无返回值。用于对象初始化。
+- **析构函数**：以 `~类名` 命名，无参数。对象销毁时自动调用。
+
+```cpp
+class Person {
+public:
+    Person(const std::string& n, int a) : name(n), age(a) {
+        std::cout << "构造: " << name << std::endl;
+    }
+    ~Person() {
+        std::cout << "析构: " << name << std::endl;
+    }
+    std::string name;
+    int age;
+};
+```
+
+### 3. 成员函数定义
+
+成员函数可在类内声明、类外实现：
+
+```cpp
+class Person {
+public:
+    void setAge(int a);
+    int getAge() const;
+private:
+    int age;
+};
+
+void Person::setAge(int a) { age = a; }
+int Person::getAge() const { return age; }
+```
+
+- `const` 成员函数：不修改成员变量。
+
+### 4. this 指针
+
+成员函数内部可用 `this` 指针访问当前对象：
+
+```cpp
+void setAge(int age) { this->age = age; }
+```
+
+### 5. 静态成员
+
+- `static` 数据成员：所有对象共享。
+- `static` 成员函数：不依赖具体对象。
+
+```cpp
+class Counter {
+public:
+    static int count;
+    Counter() { ++count; }
+    static int getCount() { return count; }
+};
+int Counter::count = 0;
+```
+
+### 6. 访问控制
+
+- `public`：外部可访问。
+- `private`：仅类内部可访问。
+- `protected`：类内部和派生类可访问。
+
+### 7. 对象的创建方式
+
+- 栈上创建：`Person p;`
+- 堆上创建：`Person* p = new Person();`，用完需 `delete p;`
+
+### 8. 拷贝构造与赋值运算符
+
+- 拷贝构造：`Person(const Person& other);`
+- 赋值运算符：`Person& operator=(const Person& other);`
+
+### 9. 类的继承
+
+```cpp
+class Student : public Person {
+public:
+    int grade;
+};
+```
+
+- 支持单继承和多继承。
+- `public` 继承：基类公有成员变为派生类公有成员。
+
+### 10. 多态与虚函数
+
+- 基类函数前加 `virtual`，派生类重写实现多态。
+- 通过基类指针/引用调用派生类方法。
+
+```cpp
+class Animal {
+public:
+    virtual void speak() { std::cout << "Animal" << std::endl; }
+};
+class Dog : public Animal {
+public:
+    void speak() override { std::cout << "Dog" << std::endl; }
+};
+```
+
+### 11. 友元（friend）
+
+- 友元函数/类可访问类的私有成员。
+
+```cpp
+class Box {
+    friend void show(Box&);
+private:
+    int value;
+};
+```
+
+### 12. 内联成员函数
+
+- 类内定义的成员函数自动为 `inline`。
+
+---
+
+**小结**：类与对象是 C++ 面向对象编程的核心，支持封装、继承和多态。合理设计类结构有助于代码复用、扩展和维护。
+
+
+---
+
+## class 与 struct 的区别
+
+C++ 中 `class` 和 `struct` 都可用于定义自定义类型，二者在语法和功能上非常相似，但有以下主要区别：
+
+### 1. 默认访问权限不同
+
+- `struct` 的成员默认是 `public`（公有）。
+- `class` 的成员默认是 `private`（私有）。
+
+```cpp
+struct S {
+    int x; // 默认 public
+};
+
+class C {
+    int x; // 默认 private
+};
+```
+
+### 2. 默认继承权限不同
+
+- `struct` 继承时默认 `public` 继承。
+- `class` 继承时默认 `private` 继承。
+
+```cpp
+struct Base {};
+struct Derived1 : Base {};      // 默认 public 继承
+class Derived2 : Base {};       // 默认 private 继承
+```
+
+### 3. 功能完全一致
+
+- 都支持成员变量、成员函数、构造/析构、继承、多态、模板等所有面向对象特性。
+- 选择 `struct` 还是 `class` 主要取决于代码风格和语义表达。
+
+### 4. 使用建议
+
+- `struct` 常用于简单的数据结构或 POD（Plain Old Data）类型。
+- `class` 常用于复杂对象、封装和面向对象设计。
+
+**小结**：`class` 和 `struct` 的唯一区别是默认访问权限和默认继承权限，功能上完全等价。
+
+---
+
+## 成员属性设置为 private 的优势
+
+将类的成员属性（数据成员）设置为 `private`（私有）是面向对象编程中封装（Encapsulation）原则的体现，具有以下优势：
+
+1. **数据安全性**
+    - 防止外部代码直接修改对象的内部状态，避免无效或非法赋值，保护数据完整性。
+
+2. **隐藏实现细节**
+    - 只暴露必要的接口（如 getter/setter），隐藏内部实现，便于后续修改而不影响外部代码。
+
+3. **便于维护和扩展**
+    - 可以在访问成员时增加校验、日志等逻辑，增强灵活性和可维护性。
+
+4. **支持只读/只写属性**
+    - 通过只提供 getter 或 setter，可以灵活控制属性的访问权限。
+
+5. **实现不变式约束**
+    - 在 setter 中检查和保证对象始终处于有效状态，防止出现不一致的数据。
+
+**示例：**
+
+```cpp
+class Person {
+private:
+     int age;
+public:
+     void setAge(int a) {
+          if (a >= 0 && a <= 150) age = a;
+     }
+     int getAge() const { return age; }
+};
+```
+
+**小结**：将成员属性设为 `private` 能有效保护数据、隐藏实现细节、提升代码健壮性，是良好类设计的重要基础。
